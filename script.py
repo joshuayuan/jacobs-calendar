@@ -1,5 +1,6 @@
 import pandas
 import utils
+import matplotlib.pyplot as plt
 
 df = pandas.read_csv('3-1-19_3-10-19.csv', parse_dates=['Start time', 'Finish time'], usecols=[0, 1, 2]) 
 
@@ -13,6 +14,7 @@ df["Cutter"] = df["Cutter"].map({"Red laser cutter 48x24 in": "Red", "Blue laser
 df = df.sort_values(by=["Cutter", "Start"]) 
 
 # create dictionaries. Consider using default dicts later
+# {string date: pandas.Timedelta total_time} 
 reds = {}
 blues = {}
 greens = {}
@@ -36,4 +38,18 @@ for index, cutter, start, stop in df.itertuples():
         greens[date] += stop - start
     elif cutter == "Yellow":
         yellows[date] += stop - start
+
+keys = []
+values = []
+for key in sorted(reds.keys()):
+    keys.append(key)
+    values.append(reds[key].seconds)
+
+print(keys)
+print(values)
+x = range(0,10)
+plt.plot(x, values)
+plt.xticks(x, keys)
+
+plt.show()
 
