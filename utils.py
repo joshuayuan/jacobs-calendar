@@ -1,5 +1,6 @@
+import time
 def get_date_str(timestamp):
-    return str(timestamp.month) + "-" + str(timestamp.day) + "-" + str(timestamp.year)
+    return time.strftime("%Y-%m-%d", timestamp)
 
 def get_file_contents(filename):
     try:
