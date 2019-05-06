@@ -7,6 +7,7 @@ import matplotlib.ticker as ticker
 from tkcalendar import Calendar
 import pandas
 
+weekday_string = {0: "Mon", 1: "Tues", 2: "Wed", 3: "Thurs", 4: "Fri", 5: "Sat", 6: "Sun"}
 
 api_filename = "API_KEY"
 Client.instance().configure(
@@ -23,13 +24,15 @@ while 1:
         print(e)
 ll = Client.instance().appointments.list(schedule_id=289549, start_time=starting_date)
 #I think this only gets 2500 appointments max though.
+
 reds = {}
 blues = {}
 greens = {}
 yellows = {}
 
 # number_of_hours_open * 60 * 60 = total seconds
-day_to_seconds = {0: 52200.0, 1: 52200.0, 2: 52200.0, 3: 52200.0, 4: 52200.0, 5: 25200.0, 6: 14400.0} # 0 is Monday 6 is Sunday
+# M-F are 14 hours, Sat is 6.5 hours, Sunday is 3.5 hours.
+day_to_seconds = {0: 50400.0, 1: 50400.0, 2: 50400.0, 3: 50400.0, 4: 50400.0, 5: 23400.0, 6: 12600.0} # 0 is Monday 6 is Sunday
 
 
 i = 0
@@ -43,6 +46,7 @@ for l in ll:
     date_str = stop.strftime("%Y-%m-%d")# utils.get_date_str(stop)
 
     if date_str not in reds or date_str not in blues or date_str not in greens or date_str not in yellows:
+        print(date_str)
         reds[date_str] = pandas.Timedelta(0)
         greens[date_str] = pandas.Timedelta(0)
         blues[date_str] = pandas.Timedelta(0)
@@ -60,14 +64,14 @@ for l in ll:
     elif name == "Yellow":
         # yellow laser cutter
         yellows[date_str] += (stop - start)
-print(i)
+# print(i)
 
 red_keys = []
 red_values = []
 for key in sorted(reds.keys()):
     red_keys.append(key)
     red_values.append(reds[key].seconds / day_to_seconds[dt.datetime.strptime(key, "%Y-%m-%d").weekday()])
-print(reds)
+# print(reds)
 blue_keys= []
 blue_values = []
 for key in sorted(reds.keys()):
@@ -93,8 +97,10 @@ plt.plot(data, yellow_values, 'y')
 plt.plot(data, blue_values, 'b')
 plt.plot(data, green_values, 'g')
 ax = plt.axes()
+ax.grid()
 ax.xaxis.set_major_locator(plt.MultipleLocator(base=7.0))
 ax.xaxis.set_minor_locator(plt.MultipleLocator(base=1.0))
+ax.set_xticklabels(["Day: ", weekday_string[starting_date.weekday()]])
 
 plt.show()
 
